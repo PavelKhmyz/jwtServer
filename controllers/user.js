@@ -3,8 +3,8 @@ const UserService = require("../service/user");
 class UserController {
   async registration(req, res) {
     try {
-      const { email, password } = req.body;
-      const userData = await UserService.registration(email, password); // {token, userData}
+      const { email, password, playerName, userPlatform } = req.body;
+      const userData = await UserService.registration(email, password, playerName, userPlatform ); // {token, userData}
       res.cookie("refreshToken", userData.refreshToken, {
         maxAge: 30 * 24 * 60 * 60 * 1000,
         httpOnly: true,

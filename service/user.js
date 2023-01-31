@@ -5,13 +5,13 @@ const tokenService = require("./token");
 const UserDto = require("../dtos/user");
 
 class UserService {
-  async registration(email, password) {
+  async registration(email, password, playerName, userPlatform ) {
     const candidate = await UserModel.findOne({ email });
     if (candidate) {
       throw new Error("Пользователь с такой почтой уже существует");
     }
     const hashPassword = await bcrypt.hash(password, 3);
-    const user = await UserModel.create({ email, password: hashPassword });
+    const user = await UserModel.create({ email, password: hashPassword, playerName, userPlatform  });
     const userDto = new UserDto(user);
     const tokens = tokenService.generateTokens({ ...userDto }); // {пара токенов}
     await tokenService.saveToken(userDto.id, tokens.refreshToken);
