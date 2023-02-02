@@ -3,12 +3,23 @@ const UserService = require("../service/user");
 class UserController {
   async registration(req, res) {
     try {
-      const { email, password, playerName, userPlatform } = req.body;
-      const userData = await UserService.registration(email, password, playerName, userPlatform ); // {token, userData}
+      const { email, password, userAccounts} = req.body;
+      const userData = await UserService.registration(email, password, userAccounts ); // {token, userData}
       res.cookie("refreshToken", userData.refreshToken, {
         maxAge: 30 * 24 * 60 * 60 * 1000,
         httpOnly: true,
       });
+      return res.json(userData);
+    } catch (error) {
+      res.status(400).send(error.message);
+    }
+  }
+
+  async addAccounts(req, res) {
+    try {
+      const { email, userAccounts } = req.body;
+      const userData = await UserService.account(email, userAccounts );
+      
       return res.json(userData);
     } catch (error) {
       res.status(400).send(error.message);
@@ -31,7 +42,7 @@ class UserController {
 
   async logout(req, res, next) {
     try {
-      const { refreshToken } = req.cookies;
+      const refreshToken = req.header('token');
       const token = await UserService.logout(refreshToken);
       res.clearCookie("refreshToken");
       return res.json(token);
@@ -40,7 +51,7 @@ class UserController {
 
   async refresh(req, res, next) {
     try {
-      const { refreshToken } = req.cookies;
+      const refreshToken = req.header('token');
       const userData = await UserService.refresh(refreshToken);
       res.cookie("refreshToken", userData.refreshToken, {
         maxAge: 30 * 24 * 60 * 60 * 1000,

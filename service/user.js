@@ -5,13 +5,13 @@ const tokenService = require("./token");
 const UserDto = require("../dtos/user");
 
 class UserService {
-  async registration(email, password, playerName, userPlatform ) {
+  async registration(email, password, userAccounts) {
     const candidate = await UserModel.findOne({ email });
     if (candidate) {
       throw new Error("Пользователь с такой почтой уже существует");
     }
     const hashPassword = await bcrypt.hash(password, 3);
-    const user = await UserModel.create({ email, password: hashPassword, playerName, userPlatform  });
+    const user = await UserModel.create({ email, password: hashPassword, userAccounts });
     const userDto = new UserDto(user);
     const tokens = tokenService.generateTokens({ ...userDto }); // {пара токенов}
     await tokenService.saveToken(userDto.id, tokens.refreshToken);
@@ -20,6 +20,13 @@ class UserService {
       ...tokens,
       user: userDto,
     };
+  }
+  async account(email, userAccounts) {
+    const query = {email: email}
+    const user = await UserModel.findOneAndUpdate(query, {userAccounts: userAccounts});
+    const userDto = new UserDto(user);
+
+    return userDto
   }
   async login(email, password) {
     const user = await UserModel.findOne({ email });
