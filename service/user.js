@@ -23,7 +23,7 @@ class UserService {
   }
   async account(email, userAccounts) {
     const query = {email: email}
-    const user = await UserModel.findOneAndUpdate(query, {userAccounts: userAccounts});
+    const user = await UserModel.findOneAndUpdate(query, {userAccounts: userAccounts}, {new: true});
     const userDto = new UserDto(user);
 
     return userDto
