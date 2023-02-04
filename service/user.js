@@ -8,7 +8,7 @@ class UserService {
   async registration(email, password, userAccounts) {
     const candidate = await UserModel.findOne({ email });
     if (candidate) {
-      throw new Error("Пользователь с такой почтой уже существует");
+      throw new Error("User with this email already exists");
     }
     const hashPassword = await bcrypt.hash(password, 3);
     const user = await UserModel.create({ email, password: hashPassword, userAccounts });
@@ -31,11 +31,11 @@ class UserService {
   async login(email, password) {
     const user = await UserModel.findOne({ email });
     if (!user) {
-      throw new Error("Пользователя с такой почтой не сущесствует");
+      throw new Error("User with this email does not exist");
     }
     const isPassEquals = await bcrypt.compare(password, user.password);
     if (!isPassEquals) {
-      throw new Error("Не верный пароль");
+      throw new Error("Wrong password");
     }
     const userDto = new UserDto(user);
     const token = tokenService.generateTokens({ ...userDto });
@@ -52,12 +52,12 @@ class UserService {
   }
   async refresh(refreshToken) {
     if (!refreshToken) {
-      throw new Error("Вы не авторизованны");
+      throw new Error("You are not authorized");
     }
     const userData = tokenService.validateRefreshToken(refreshToken);
     const tokenFromDb = await tokenService.findToken(refreshToken);
     if (!userData || !tokenFromDb) {
-      throw new Error("Вы не авторизованны");
+      throw new Error("You are not authorized");
     }
     const user = await UserModel.findById(userData.id);
     const userDto = new UserDto(user);
@@ -76,7 +76,7 @@ class UserService {
       !accessToken ||
       !tokenService.validateAccessToken(accessToken)
     ) {
-      throw new Error("Вы не авторизированны");
+      throw new Error("You are not authorized");
     }
     const userList = await UserModel.find();
     return userList;
