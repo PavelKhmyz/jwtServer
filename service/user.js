@@ -13,7 +13,7 @@ class UserService {
     const hashPassword = await bcrypt.hash(password, 3);
     const user = await UserModel.create({ email, password: hashPassword, userAccounts });
     const userDto = new UserDto(user);
-    const tokens = tokenService.generateTokens({ ...userDto }); // {пара токенов}
+    const tokens = tokenService.generateTokens({ ...userDto });
     await tokenService.saveToken(userDto.id, tokens.refreshToken);
 
     return {
